@@ -31,31 +31,29 @@ Maybe.unit = function (x) {
 };
 
 Maybe.bind = function(f){
-	return function(){
-		var m = arguments[0];
+	return function(m){
 		if(m instanceof Maybe) return typeof m.just == 'undefined' ? new Nothing : f(m.just);
 		throw "Argument must be instanceof Maybe";
 	}
 };
 
 Maybe.lift = function(f){
-	return function(){
+	return function(x){
 		try{
-			return Maybe.unit(f(arguments[0]));
-		}catch(ignore){}
-		return new Nothing;
+			return Maybe.unit(f(x));
+		}catch(ignore){
+			return new Nothing;
+		}
 	}
 };
 
 Maybe.do = function(m){
-	var result = arguments[0];
 	var fns = Array.prototype.slice.call(arguments, 1);
 	for (fn of fns) {
-		if( typeof result.just == 'undefined' ) return new Nothing;
-		result = fn(result.just);
+		m = Maybe.bind(fn)(m);
 	}
 
-	return result;
+	return m;
 };
 
 
